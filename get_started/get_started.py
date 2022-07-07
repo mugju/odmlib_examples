@@ -7,7 +7,7 @@ import os
 import datetime
 
 # update this path to point to your ODM1-3-2 schema file
-SCHEMA_FILE = os.path.join(os.sep, 'home', 'sam', 'standards', 'odm1-3-2', 'ODM1-3-2.xsd')
+SCHEMA_FILE = '../CDISC_test/odm1_3_2/ODM1-3-2.xsd'
 
 
 class ODMProcessor:
@@ -78,6 +78,7 @@ class ODMCreator:
                        CreationDateTime=self._set_datetime(), ODMVersion="1.3.2", FileType="Snapshot",
                        Originator="swhume", SourceSystem="odmlib", SourceSystemVersion="0.1")
         root.Study = self._add_study()
+        self._add_basicdef_elements(root.Study[0].BasicDefinitions)
         root.Study[0].MetaDataVersion.append(ODM.MetaDataVersion(OID="MDV.DEMO-ODM-01", Name="Get Started MDV", Description="Get Started Demo"))
         self._add_mdv_elements(root.Study[0].MetaDataVersion[0])
         root.write_xml(self.odm_file)
@@ -89,6 +90,19 @@ class ODMCreator:
         study.GlobalVariables.StudyDescription = ODM.StudyDescription(_content="Demo to get started with odmlib")
         study.GlobalVariables.ProtocolName = ODM.ProtocolName(_content="ODM XML Get Started")
         return [study]
+
+    def _add_basicdef_elements(self, basicdef):
+        basicdef.MeasurementUnit = self._add_measurement()
+        self._convert_elements()
+
+    def _add_measurement(self): # measurement unit 리스트를 받아올수 있어야 함
+        m1 = ODM.MeasurementUnit(OID="MU.1", Name = "MU.1")
+        m1.Symbol = ODM.Symbol()
+        m1.Symbol.TranslatedText.append(ODM.TranslatedText(_content="kg", lang="en"))
+        m2 = ODM.MeasurementUnit(OID="MU.2", Name = "MU.2")
+        m2.Symbol = ODM.Symbol()
+        m2.Symbol.TranslatedText.append(ODM.TranslatedText(_content="mg", lang="en"))
+        return [m1,m2]
 
     def _add_mdv_elements(self, mdv):
         mdv.Protocol = self._add_protocol()
